@@ -80,7 +80,7 @@ const team = ref('')
 const message = ref('')
 
 async function sendSlackWebhook(id: number) {
-  const link = `https://app.heybooster.ai/#/updates?id=${id}`
+  const link = `https://update-hub.vercel.app/#/updates?id=${id}`
 
   const payload = {
     text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n📅 <${link}|Güncellemeye Git}>`
