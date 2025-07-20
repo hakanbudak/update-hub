@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import {supabase} from "@/lib/supabase.ts";
 
 export type UpdateItem = {
   id: number
@@ -75,22 +76,48 @@ export const useUpdateStore = defineStore('updateStore', {
       }
     },
 
-    editUpdate(updatedItem: UpdateItem) {
-      const index = this.updates.findIndex(u => u.id === updatedItem.id)
+    editUpdate(update: UpdateItem) {
+      // Local veriyi güncelle (localStorage)
+      const index = updates.value.findIndex((u) => u.id === update.id)
       if (index !== -1) {
-        this.updates[index] = updatedItem
-        this.saveToStorage()
+        updates.value[index] = update
+      }
+      saveToLocalStorage()
+
+      // Supabase tablosunu güncelle
+      const { error } = await supabase
+          .from('updates')
+          .update({
+            user_name: update.user.name,
+            team: update.user.team,
+            message: update.message,
+            image_url: update.imageUrl,
+            link_url: update.linkUrl ?? null,
+            date: update.date,
+          })
+          .eq('id', update.id)
+
+      if (error) {
+        console.error('Supabase güncelleme hatası:', error)
       }
     },
 
     addUpdate(update: UpdateItem) {
+      const { error } = await supabase.from('updates').insert([update])
+      if (error) {
+        console.error('Supabase insert error:', error)
+        return
+      }
       this.updates.unshift(update)
-      this.saveToStorage()
     },
 
     deleteUpdate(id: number) {
+      const { error } = await supabase.from('updates').delete().eq('id', id)
+      if (error) {
+        console.error('Supabase delete error:', error)
+        return
+      }
       this.updates = this.updates.filter((u) => u.id !== id)
-      this.saveToStorage()
     },
 
     saveToStorage() {

@@ -50,9 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import { useRouter } from "vue-router";
+import { supabase } from '@/lib/supabase'
 import { useUpdateStore } from '@/stores/updateStore'
+import { uploadImage } from '@/utilites/uploadImage'
+
 
 const updateStore = useUpdateStore()
 const router = useRouter()
@@ -83,17 +86,23 @@ async function sendSlackWebhook(id: number) {
   const link = `https://update-hub.vercel.app/#/updates?id=${id}`
 
   const payload = {
-    text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n📅 <${link}|Güncellemeye Git}>`
+    text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n🔗 <${link}|Güncellemeye Git>`
   }
 
   try {
-    await fetch("https://hooks.slack.com/services/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", {
+    const response = await fetch("https://hooks.slack.com/services/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", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     })
+
+    if (!response.ok) {
+      console.error("Slack gönderimi başarısız:", await response.text())
+    } else {
+      console.log("Slack'e başarıyla gönderildi.")
+    }
   } catch (error) {
     console.error("Slack Webhook hatası:", error)
   }
@@ -102,21 +111,32 @@ async function sendSlackWebhook(id: number) {
 function submitUpdate() {
   if (!userName.value || !team.value || !message.value) return
 
+  let uploadedImageUrl: string | null = null
+
+  if (selectedFile.value) {
+    uploadedImageUrl = await uploadImageToSupabase(selectedFile.value)
+  }
+
   const updateId = Date.now()
 
-  updateStore.addUpdate({
-    id: Date.now(),
-    user: {
-      name: userName.value,
+  const { error } = await supabase.from('updates').insert([
+    {
+      user_name: userName.value,
       team: team.value,
-    },
-    message: message.value,
-    date: new Date().toISOString(),
-    imageUrl: imagePreview.value || undefined,
-  })
+      message: message.value,
+      image_url: uploadedImageUrl,
+      link_url: linkUrl.value || null,
+    }
+  ])
+  if (error) {
+    console.error('Hata:', error.message)
+    return
+  }
 
-   sendSlackWebhook(updateId)
-
+  if (!error) {
+    await sendSlackWebhook(updateId)
+  }
+  
   userName.value = ''
   team.value = ''
   message.value = ''
@@ -129,12 +149,20 @@ function handleImageUpload(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (file) {
-    const reader = new FileReader()
-    reader.onload = () => {
-      imagePreview.value = reader.result as string
-    }
-    reader.readAsDataURL(file)
+    selectedFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
+
+onMounted(async () => {
+  const { data, error } = await supabase
+      .from('updates')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+  if (data) {
+    store.setUpdates(data)
+  }
+})
 
 </script>

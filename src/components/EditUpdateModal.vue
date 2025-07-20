@@ -25,15 +25,15 @@
         <div class="mb-4">
           <label class="block text-sm text-gray-600 mb-1">Görsel Yükle</label>
           <input
-            type="file"
-            accept="image/*"
-            @change="handleImageUpload"
-            class="w-full border rounded p-2"
+              type="file"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="w-full border rounded p-2"
           />
         </div>
 
-        <div v-if="formData.imageUrl" class="mb-4">
-          <img :src="formData.imageUrl" alt="Görsel" class="max-w-full max-h-48 rounded border" />
+        <div v-if="imagePreview" class="mt-2">
+          <img :src="imagePreview" alt="Seçilen Görsel" class="rounded max-w-xs max-h-48 border" />
         </div>
 
         <div class="mb-4">
@@ -57,6 +57,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { UpdateItem } from '@/stores/updateStore'
+import { uploadImage } from '@/utilites/uploadImage'
+
 
 const props = defineProps<{
   update: UpdateItem
@@ -68,16 +70,31 @@ const emit = defineEmits<{
 }>()
 
 const formData = ref<UpdateItem>(JSON.parse(JSON.stringify(props.update))) // deep copy
+const selectedFile = ref<File | null>(null)
+const imagePreview = ref<string | null>(formData.value.imageUrl || null)
 
-function submitEdit() {
-  emit('save', formData.value)
+async function submitEdit() {
+  let finalImageUrl = formData.value.imageUrl
+
+  if (selectedFile.value) {
+    const uploaded = await uploadImageToSupabase(selectedFile.value)
+    if (uploaded) {
+      finalImageUrl = uploaded
+    }
+  }
+
+  emit('save', {
+    ...formData.value,
+    imageUrl: finalImageUrl
+  })
 }
 
 function handleImageUpload(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (file) {
-    formData.value.imageUrl = URL.createObjectURL(file)
+    selectedFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
 </script>
