@@ -76,8 +76,8 @@ export const useUpdateStore = defineStore('updateStore', {
       }
     },
 
-    editUpdate(update: UpdateItem) {
-      // Local veriyi güncelle (localStorage)
+    async editUpdate(update: UpdateItem) {
+      // Local veriyi güncelle
       const index = updates.value.findIndex((u) => u.id === update.id)
       if (index !== -1) {
         updates.value[index] = update
@@ -102,7 +102,7 @@ export const useUpdateStore = defineStore('updateStore', {
       }
     },
 
-    addUpdate(update: UpdateItem) {
+    async addUpdate(update: UpdateItem) {
       const { error } = await supabase.from('updates').insert([update])
       if (error) {
         console.error('Supabase insert error:', error)
@@ -111,13 +111,15 @@ export const useUpdateStore = defineStore('updateStore', {
       this.updates.unshift(update)
     },
 
-    deleteUpdate(id: number) {
+    async deleteUpdate(id: number) {
       const { error } = await supabase.from('updates').delete().eq('id', id)
       if (error) {
         console.error('Supabase delete error:', error)
         return
       }
+
       this.updates = this.updates.filter((u) => u.id !== id)
+      this.saveToStorage()
     },
 
     saveToStorage() {

@@ -77,7 +77,7 @@ async function submitEdit() {
   let finalImageUrl = formData.value.imageUrl
 
   if (selectedFile.value) {
-    const uploaded = await uploadImageToSupabase(selectedFile.value)
+    const uploaded = await uploadImage(selectedFile.value)
     if (uploaded) {
       finalImageUrl = uploaded
     }

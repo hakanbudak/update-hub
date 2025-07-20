@@ -101,13 +101,13 @@ async function sendSlackWebhook(id: number) {
   }
 }
 
-function submitUpdate() {
+async function submitUpdate() {
   if (!userName.value || !team.value || !message.value) return
 
   let uploadedImageUrl: string | null = null
 
   if (selectedFile.value) {
-    uploadedImageUrl = await uploadImage(selectedFile.value)
+    uploadedImageUrl = uploadImage(selectedFile.value)
   }
 
   const updateId = Date.now()
@@ -146,10 +146,14 @@ function handleImageUpload(event: Event) {
 }
 
 onMounted(async () => {
-  const { data } = await supabase
+  const { data, error } = await supabase
       .from('updates')
       .select('*')
       .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error("Veri çekme hatası:", error)
+  }
 
   if (data) {
     store.setUpdates(data)
