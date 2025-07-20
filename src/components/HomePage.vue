@@ -96,7 +96,6 @@ function exportUpdates() {
     `"${update.message.replace(/"/g, '""')}"`,
     update.date,
     update.imageUrl || '',
-    update.linkUrl || ''
   ])
 
   const csvContent = [headers, ...rows]

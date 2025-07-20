@@ -112,7 +112,7 @@ function submitUpdate() {
     },
     message: message.value,
     date: new Date().toISOString(),
-    imageUrl:  imagePreview.value,
+    imageUrl: imagePreview.value || undefined,
   })
 
    sendSlackWebhook(updateId)
