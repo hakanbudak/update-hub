@@ -53,11 +53,9 @@
 import {onMounted, ref} from 'vue'
 import { useRouter } from "vue-router";
 import { supabase } from '@/lib/supabase'
-import { useUpdateStore } from '@/stores/updateStore'
 import { uploadImage } from '@/utilites/uploadImage'
 
 
-const updateStore = useUpdateStore()
 const router = useRouter()
 
 const names = [
@@ -78,6 +76,7 @@ const names = [
 
 
 const imagePreview = ref<string | null>(null)
+const selectedFile = ref<File | null>(null)
 const userName = ref('')
 const team = ref('')
 const message = ref('')
@@ -86,23 +85,17 @@ async function sendSlackWebhook(id: number) {
   const link = `https://update-hub.vercel.app/#/updates?id=${id}`
 
   const payload = {
-    text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n🔗 <${link}|Güncellemeye Git>`
+    text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n📅 <${link}|Güncellemeye Git}>`
   }
 
   try {
-    const response = await fetch("https://hooks.slack.com/services/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", {
+    await fetch("https://hooks.slack.com/services/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", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     })
-
-    if (!response.ok) {
-      console.error("Slack gönderimi başarısız:", await response.text())
-    } else {
-      console.log("Slack'e başarıyla gönderildi.")
-    }
   } catch (error) {
     console.error("Slack Webhook hatası:", error)
   }
@@ -114,7 +107,7 @@ function submitUpdate() {
   let uploadedImageUrl: string | null = null
 
   if (selectedFile.value) {
-    uploadedImageUrl = await uploadImageToSupabase(selectedFile.value)
+    uploadedImageUrl = await uploadImage(selectedFile.value)
   }
 
   const updateId = Date.now()
@@ -133,10 +126,8 @@ function submitUpdate() {
     return
   }
 
-  if (!error) {
-    await sendSlackWebhook(updateId)
-  }
-  
+   sendSlackWebhook(updateId)
+
   userName.value = ''
   team.value = ''
   message.value = ''
@@ -155,7 +146,7 @@ function handleImageUpload(event: Event) {
 }
 
 onMounted(async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
       .from('updates')
       .select('*')
       .order('created_at', { ascending: false })
