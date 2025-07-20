@@ -78,11 +78,10 @@ export const useUpdateStore = defineStore('updateStore', {
 
     async editUpdate(update: UpdateItem) {
       // Local veriyi güncelle
-      const index = updates.value.findIndex((u) => u.id === update.id)
+      const index = this.updates.findIndex((u) => u.id === update.id)
       if (index !== -1) {
-        updates.value[index] = update
+        this.updates[index] = update
       }
-      saveToLocalStorage()
 
       // Supabase tablosunu güncelle
       const { error } = await supabase
@@ -92,7 +91,6 @@ export const useUpdateStore = defineStore('updateStore', {
             team: update.user.team,
             message: update.message,
             image_url: update.imageUrl,
-            link_url: update.linkUrl ?? null,
             date: update.date,
           })
           .eq('id', update.id)

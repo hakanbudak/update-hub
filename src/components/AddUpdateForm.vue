@@ -107,7 +107,7 @@ async function submitUpdate() {
   let uploadedImageUrl: string | null = null
 
   if (selectedFile.value) {
-    uploadedImageUrl = uploadImage(selectedFile.value)
+    uploadedImageUrl = await uploadImage(selectedFile.value)
   }
 
   const updateId = Date.now()
@@ -118,7 +118,6 @@ async function submitUpdate() {
       team: team.value,
       message: message.value,
       image_url: uploadedImageUrl,
-      link_url: linkUrl.value || null,
     }
   ])
   if (error) {
@@ -153,10 +152,6 @@ onMounted(async () => {
 
   if (error) {
     console.error("Veri çekme hatası:", error)
-  }
-
-  if (data) {
-    store.setUpdates(data)
   }
 })
 
