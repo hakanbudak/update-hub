@@ -5,7 +5,6 @@ import { type UpdateItem, useUpdateStore } from '@/stores/updateStore'
 import UpdateCard from '@/components/UpdateCard.vue'
 import DeleteConfirmModal from "@/components/DeleteConfirmModal.vue"
 import EditUpdateModal from '@/components/EditUpdateModal.vue'
-import {supabase} from "@/lib/supabase.ts";
 
 const store = useUpdateStore()
 const route = useRoute()

@@ -1,3 +1,23 @@
 {
-  "version": 2
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/send-slack.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": []
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/send-slack",
+      "dest": "/api/send-slack.ts"
+    }
+  ],
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--experimental-specifier-resolution=node"
+    }
+  }
 }
