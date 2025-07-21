@@ -89,7 +89,7 @@ async function sendSlackWebhook(id: number) {
   }
 
   try {
-    await fetch("https://hooks.slack.com/services/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", {
+    await fetch("https://cors-anywhere.herokuapp.com/https://hooks.slack.com/services/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", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
