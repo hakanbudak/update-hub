@@ -5,6 +5,7 @@ import { type UpdateItem, useUpdateStore } from '@/stores/updateStore'
 import UpdateCard from '@/components/UpdateCard.vue'
 import DeleteConfirmModal from "@/components/DeleteConfirmModal.vue"
 import EditUpdateModal from '@/components/EditUpdateModal.vue'
+import {supabase} from "@/lib/supabase.ts";
 
 const store = useUpdateStore()
 const route = useRoute()
@@ -110,6 +111,23 @@ function exportUpdates() {
   link.click()
   URL.revokeObjectURL(url)
 }
+
+onMounted(() => {
+  if (store.updates.length === 0) {
+    store.loadInitialData()
+  }
+
+  const urlTeam = route.query.team as string
+  const urlRange = route.query.range as string
+
+  if (urlTeam && ['all', 'Dev', 'Marketing', 'Sales', 'Product', 'Data'].includes(urlTeam)) {
+    store.selectedTeam = urlTeam
+  }
+
+  if (urlRange && ['all', 'weekly', 'monthly'].includes(urlRange)) {
+    store.selectedTimeRange = urlRange as 'all' | 'weekly' | 'monthly'
+  }
+})
 
 </script>
 

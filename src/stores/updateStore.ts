@@ -47,32 +47,26 @@ export const useUpdateStore = defineStore('updateStore', {
 
 
   actions: {
-    loadInitialData() {
-      const fromStorage = localStorage.getItem('updates')
-      if (fromStorage) {
-        this.updates = JSON.parse(fromStorage)
+    async loadInitialData() {
+      const { data, error } = await supabase
+          .from('updates')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        this.updates = data.map(d => ({
+          id: d.id,
+          message: d.message,
+          date: d.created_at,
+          imageUrl: d.image_url,
+          linkUrl: d.link_url,
+          user: {
+            name: d.user_name,
+            team: d.team
+          }
+        }))
       } else {
-        this.updates = [
-          {
-            id: 1,
-            user: { name: 'Batu', team: 'Marketing' },
-            message: 'Instagram kampanyası başlatıldı 🚀',
-            date: '2025-07-15',
-          },
-          {
-            id: 2,
-            user: { name: 'Ilteris', team: 'Dev' },
-            message: 'Yeni API endpoint yayına alındı.',
-            date: '2025-07-16',
-          },
-          {
-            id: 3,
-            user: { name: 'Kubra', team: 'Sales' },
-            message: 'Potansiyel müşterilerle görüşmeler yapıldı.',
-            date: '2025-07-17',
-          },
-        ]
-        this.saveToStorage()
+        console.error("Veri çekme hatası:", error)
       }
     },
 
