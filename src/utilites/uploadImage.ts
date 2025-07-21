@@ -4,7 +4,7 @@ export async function uploadImage(file: File): Promise<string | null> {
     const fileName = `${Date.now()}-${file.name}`
     const { error } = await supabase.storage
         .from('updates') // bucket adı
-        .upload(fileName, file)
+        .upload(`${Date.now()}-${file.name}`, file)
 
     if (error) {
         console.error('Upload error:', error.message)
