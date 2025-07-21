@@ -1,6 +1,8 @@
-import fetch from 'node-fetch'
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
+    console.log("SLACK_WEBHOOK_URL:", process.env.SLACK_WEBHOOK_URL);
+
     if (req.method !== "POST") {
         return res.status(405).end("Only POST requests allowed");
     }
