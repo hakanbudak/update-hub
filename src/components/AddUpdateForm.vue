@@ -82,19 +82,14 @@ const team = ref('')
 const message = ref('')
 
 async function sendSlackWebhook(id: number) {
-  const link = `https://update-hub.vercel.app/#/updates?id=${id}`
-
-  const payload = {
-    text: `💡 *Yeni Güncelleme* \n👤 *${userName.value}* (${team.value}) \n📝 ${message.value} \n📅 <${link}|Güncellemeye Git}>`
-  }
 
   try {
-    await fetch('/api/send-slack', {
+    await fetch("/api/send-slack", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: `💡 Yeni güncelleme yayınlandı: ${message}`
+      })
     })
   } catch (error) {
     console.error("Slack Webhook hatası:", error)
