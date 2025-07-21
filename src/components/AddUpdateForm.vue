@@ -88,7 +88,7 @@ async function sendSlackWebhook(id: number) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text: `💡 Yeni güncelleme yayınlandı: ${message}`
+        text: `💡 Yeni güncelleme yayınlandı`
       })
     })
   } catch (error) {
