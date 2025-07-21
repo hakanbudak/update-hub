@@ -71,13 +71,11 @@ export const useUpdateStore = defineStore('updateStore', {
     },
 
     async editUpdate(update: UpdateItem) {
-      // Local veriyi güncelle
       const index = this.updates.findIndex((u) => u.id === update.id)
       if (index !== -1) {
         this.updates[index] = update
       }
 
-      // Supabase tablosunu güncelle
       const { error } = await supabase
           .from('updates')
           .update({

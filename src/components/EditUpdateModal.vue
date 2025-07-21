@@ -59,7 +59,6 @@ import { ref } from 'vue'
 import type { UpdateItem } from '@/stores/updateStore'
 import { uploadImage } from '@/utilites/uploadImage'
 
-
 const props = defineProps<{
   update: UpdateItem
 }>()
