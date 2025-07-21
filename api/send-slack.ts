@@ -1,12 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-export const config = {
-    api: {
-        bodyParser: true,
-    },
-}
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+const handler = async (req: VercelRequest, res: VercelResponse) => {
     if (req.method !== 'POST') {
         return res.status(405).end('Only POST requests allowed')
     }
@@ -42,3 +36,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: err.message })
     }
 }
+
+module.exports = handler
